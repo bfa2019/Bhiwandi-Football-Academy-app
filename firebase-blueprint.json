@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role and associated data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "coach", "parent"] },
+        "name": { "type": "string" },
+        "childId": { "type": "string", "description": "Associated player ID for parents" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "name"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "Football player details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "ageGroup": { "type": "string", "enum": ["Under 8", "Under 10", "Under 13", "Under 15", "Under 18", "Senior Men", "Senior Women"] },
+        "batch": { "type": "string" },
+        "parentId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "ageGroup"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Daily attendance record",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "playerId": { "type": "string" },
+        "status": { "type": "string", "enum": ["present", "absent"] },
+        "markedBy": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "playerId", "status", "markedBy"]
+    },
+    "ExcelUpload": {
+      "title": "ExcelUpload",
+      "description": "Record of uploaded attendance excel sheets",
+      "type": "object",
+      "properties": {
+        "fileName": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "uploadedBy": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fileName", "fileUrl", "uploadedBy"]
+    },
+    "GalleryImage": {
+      "title": "GalleryImage",
+      "description": "Images for the academy gallery",
+      "type": "object",
+      "properties": {
+        "imageUrl": { "type": "string" },
+        "caption": { "type": "string" },
+        "uploadedBy": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["imageUrl", "uploadedBy"]
+    },
+    "TrainingSession": {
+      "title": "TrainingSession",
+      "description": "Training session plan created by coaches",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "duration": { "type": "string" },
+        "drills": { "type": "string" },
+        "objectives": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "time", "duration", "drills", "objectives", "createdBy"]
+    },
+    "Batch": {
+      "title": "Batch",
+      "description": "Training batch details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "ageGroup": { "type": "string", "enum": ["Under 8", "Under 10", "Under 13", "Under 15", "Under 18", "Senior Men", "Senior Women"] },
+        "schedule": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "ageGroup"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/players/{playerId}": {
+      "schema": "Player",
+      "description": "Player records"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": "Attendance",
+      "description": "Attendance records"
+    },
+    "/excelUploads/{uploadId}": {
+      "schema": "ExcelUpload",
+      "description": "Excel upload records"
+    },
+    "/gallery/{imageId}": {
+      "schema": "GalleryImage",
+      "description": "Gallery images"
+    },
+    "/sessions/{sessionId}": {
+      "schema": "TrainingSession",
+      "description": "Training session plans"
+    },
+    "/batches/{batchId}": {
+      "schema": "Batch",
+      "description": "Training batches"
+    }
+  }
+}

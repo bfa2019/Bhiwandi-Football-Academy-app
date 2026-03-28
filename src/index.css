@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-primary: #1a365d;
+  --color-secondary: #f6ad55;
+  --color-accent: #2c5282;
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+  }
+}
+
+.android-card {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-4;
+}
+
+.android-button {
+  @apply bg-primary text-white rounded-xl px-6 py-3 font-medium transition-all active:scale-95 disabled:opacity-50;
+}
+
+.android-input {
+  @apply w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all;
+}

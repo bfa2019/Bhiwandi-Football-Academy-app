@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Fields: uid, email, role (admin, coach, parent), name, childId
+    //
+    // Collection: players
+    // Fields: id, name, ageGroup, batch, parentId
+    //
+    // Collection: attendance
+    // Fields: date, playerId, status, markedBy, timestamp
+    //
+    // Collection: excelUploads
+    // Fields: fileName, fileUrl, uploadedBy, timestamp
+    //
+    // Collection: gallery
+    // Fields: imageUrl, caption, uploadedBy, timestamp
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "nitishawasthi032@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isCoach() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach';
+    }
+
+    function isParent() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'parent';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Validation Functions
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'name']) &&
+             data.role in ['admin', 'coach', 'parent'] &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100;
+    }
+
+    function isValidPlayer(data) {
+      return data.keys().hasAll(['id', 'name', 'ageGroup']) &&
+             data.ageGroup in ['Under 8', 'Under 10', 'Under 13', 'Under 15', 'Under 18', 'Senior Men', 'Senior Women'] &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100;
+    }
+
+    function isValidAttendance(data) {
+      return data.keys().hasAll(['date', 'playerId', 'status', 'markedBy']) &&
+             data.status in ['present', 'absent'];
+    }
+
+    // Match Rules
+    match /users/{uid} {
+      allow read: if isAuthenticated() && (isOwner(uid) || isAdmin());
+      allow create: if isAdmin() && isValidUser(request.resource.data);
+      allow update: if isAdmin() && isValidUser(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /players/{playerId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidPlayer(request.resource.data);
+      allow update: if (isAdmin() || isCoach()) && isValidPlayer(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow create: if (isAdmin() || isCoach()) && isValidAttendance(request.resource.data);
+      allow update: if (isAdmin() || isCoach()) && isValidAttendance(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /excelUploads/{uploadId} {
+      allow read: if isAuthenticated();
+      allow create: if (isAdmin() || isCoach());
+      allow update: if (isAdmin() || isCoach());
+      allow delete: if isAdmin();
+    }
+
+    match /gallery/{imageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if isAuthenticated() && (isAdmin() || isCoach());
+      allow create: if (isAdmin() || isCoach());
+      allow update: if (isAdmin() || isCoach());
+      allow delete: if isAdmin();
+    }
+
+    match /batches/{batchId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
